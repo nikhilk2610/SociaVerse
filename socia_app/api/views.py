@@ -1,6 +1,6 @@
 # views.py
 from django.db.models import Q
-from rest_framework import generics, status
+from rest_framework import generics, status, permissions
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -35,6 +35,7 @@ class UserLoginView(APIView):
 
 class UserSearchAPIView(generics.ListAPIView):
     serializer_class = UserProfileSerializer
+    permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
         search_keyword = self.request.query_params.get('query')
