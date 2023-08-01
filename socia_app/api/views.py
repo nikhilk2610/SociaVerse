@@ -1,12 +1,8 @@
-# views.py
 from django.db.models import Q
-# from django.utils.decorators import method_decorator
 from rest_framework import generics, status, permissions
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
-from rest_framework.throttling import AnonRateThrottle
 from rest_framework.views import APIView
-# from ratelimit.decorators import ratelimit
 
 from .models import UserProfile, FriendRequest, RequestStatus
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -20,8 +16,7 @@ class UserSignupView(APIView):
         serializer = UserSignupSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        user = serializer.save()
-
+        serializer.save()
         return Response({'detail': 'User registered successfully.'}, status=status.HTTP_201_CREATED)
 
 
@@ -109,14 +104,14 @@ class FriendsListAPIView(generics.ListAPIView):
 
     def get_queryset(self):
         user = self.request.user
-        friends = FriendRequest.objects.filter(sender=user, status='accepted').order_by('-created_at').values_list('receiver')
+        friends = FriendRequest.objects.filter(sender=user, status=RequestStatus.ACCEPTED.value).order_by('-created_at').values_list('receiver')
         return UserProfile.objects.filter(pk__in=friends)
 
 
-class FriendRequestsListAPIView(generics.ListAPIView):
+class PendingFriendRequestsListAPIView(generics.ListAPIView):
     serializer_class = FriendRequestSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
         user = self.request.user
-        return FriendRequest.objects.filter(receiver=user, status='pending').order_by('-created_at')
+        return FriendRequest.objects.filter(receiver=user, status=RequestStatus.PENDING.value).order_by('-created_at')
