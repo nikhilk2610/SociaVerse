@@ -43,7 +43,7 @@ class UserSearchAPIView(generics.ListAPIView):
         if search_keyword:
             return UserProfile.objects.filter(
                 Q(name__icontains=search_keyword) | Q(email__iexact=search_keyword)
-            )
+            ).order_by("name")
         return UserProfile.objects.none()
 
 
@@ -96,3 +96,22 @@ class FriendRequestActionAPIView(generics.UpdateAPIView):
         friend_request.save()
         serializer = FriendRequestSerializer(friend_request)
         return Response(serializer.data)
+
+
+class FriendsListAPIView(generics.ListAPIView):
+    serializer_class = UserProfileSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        friends = FriendRequest.objects.filter(sender=user, status='accepted').order_by('-created_at').values_list('receiver')
+        return UserProfile.objects.filter(pk__in=friends)
+
+
+class FriendRequestsListAPIView(generics.ListAPIView):
+    serializer_class = FriendRequestSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        return FriendRequest.objects.filter(receiver=user, status='pending').order_by('-created_at')
