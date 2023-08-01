@@ -1,13 +1,17 @@
 # views.py
 from django.db.models import Q
+# from django.utils.decorators import method_decorator
 from rest_framework import generics, status, permissions
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
+from rest_framework.throttling import AnonRateThrottle
 from rest_framework.views import APIView
+# from ratelimit.decorators import ratelimit
 
 from .models import UserProfile, FriendRequest, RequestStatus
 from rest_framework_simplejwt.tokens import RefreshToken
 from .serializers import UserSignupSerializer, UserLoginSerializer, UserProfileSerializer, FriendRequestSerializer
+from .throttling import FriendRequestThrottle
 
 
 class UserSignupView(APIView):
@@ -50,6 +54,7 @@ class UserSearchAPIView(generics.ListAPIView):
 class FriendRequestAPIView(generics.CreateAPIView):
     serializer_class = FriendRequestSerializer
     permission_classes = [permissions.IsAuthenticated]
+    throttle_classes = [FriendRequestThrottle]
 
     def create(self, request, *args, **kwargs):
         sender = request.user
