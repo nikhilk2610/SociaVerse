@@ -1,5 +1,11 @@
 # SociaVerse
-A social media app for sending/accepting/rejecting friend requests
+A social media app with following functionality 
+- Signup/Login
+- Authentication
+- Searching user by name or email id
+- sending/accepting/rejecting friend requests
+- To get the list of friends
+- To Get the list of pending friend requests
 
 ## Getting Started
 Follow these instructions to set up and run the project on your local machine.
