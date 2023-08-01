@@ -6,14 +6,14 @@ from django.contrib.auth import authenticate
 class UserSignupSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
-        fields = ('email', 'password')
+        fields = ('email', 'name', 'password')
 
     def create(self, validated_data):
         email = UserProfile.objects.normalize_email(validated_data['email'])
+        name = validated_data['name']
         password = validated_data['password']
 
-        # Create the user with normalized email
-        user = UserProfile.objects.create_user(email=email, username=email, password=password)
+        user = UserProfile.objects.create_user(email=email, username=email, password=password, name=name)
         return user
 
 
@@ -31,3 +31,9 @@ class UserLoginSerializer(serializers.Serializer):
         else:
             raise serializers.ValidationError("Invalid credentials. Try again with correct credentials.")
         return data
+
+
+class UserProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserProfile
+        fields = ['email', 'name']
